@@ -1,0 +1,58 @@
+# RetailCo Modern Data Stack Pipeline
+# Runs the full pipeline in the correct order with a single command:
+#   docker compose up
+#
+# Pipeline stages (each runs only if the previous one succeeds):
+#   1. data_quality   - Great Expectations validation of the Bronze layer
+#   2. spark_transform - Spark Bronze to Silver transformation
+#   3. bigquery_load  - Load Silver Parquet into BigQuery
+#   4. dbt_run        - Build and test the dbt star schema
+
+
+services:
+  ## 1. Data Quality
+  data_quality:
+    build: .
+    volumes: 
+      - ~/de_learning/bulan_3/keys/najma-de-learning-key.json:/app/keys/key.json:ro
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/keys/key.json
+    command: python3 data_quality/validate.py 
+  
+  ## 2. Spark Transformation
+  spark_transform:
+    build: .
+    volumes:
+        - ~/de_learning/bulan_3/keys/najma-de-learning-key.json:/app/keys/key.json:ro
+    environment:
+        - GOOGLE_APPLICATION_CREDENTIALS=/app/keys/key.json
+    command: python3 spark/transform.py
+    depends_on:
+      data_quality:
+        condition: service_completed_successfully
+    
+  ## 3. Load to BigQuery
+  bigquery_load:
+    build: .
+    volumes:
+      - ~/de_learning/bulan_3/keys/najma-de-learning-key.json:/app/keys/key.json:ro
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/keys/key.json
+    command: python3 load/load_to_bigquery.py
+    depends_on:
+      spark_transform:
+        condition: service_completed_successfully
+  
+  ## 4. Run DBT (transformation)
+  dbt_run:
+    build: .
+    volumes:
+      - ~/de_learning/bulan_3/keys/najma-de-learning-key.json:/app/keys/key.json:ro
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/keys/key.json
+      - DBT_PROFILES_DIR=/app/dbt/retailco
+    command: sh -c "cd dbt/retailco && dbt run && dbt test"
+    depends_on:
+      bigquery_load:
+        condition: service_completed_successfully
+  

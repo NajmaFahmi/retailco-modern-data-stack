@@ -1,0 +1,8 @@
+pandas==2.2.3
+pyarrow==18.1.0
+gcsfs==2024.10.0
+google-cloud-storage==2.19.0
+google-cloud-bigquery==3.27.0
+pyspark==3.5.6
+great-expectations==1.19.1
+dbt-bigquery==1.12.0
