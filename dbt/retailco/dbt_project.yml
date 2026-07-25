@@ -1,0 +1,14 @@
+name: 'retailco'
+version: '1.0.0'
+config-version: 2
+
+profile: 'retailco'
+
+model-paths: ["models"]
+
+models:
+  retailco:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table

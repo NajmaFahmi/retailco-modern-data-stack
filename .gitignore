@@ -1,0 +1,12 @@
+venv/
+jars/
+data/raw/sales.parquet
+__pycache__/
+*.pyc
+.DS_Store
+*.egg-info/
+.great_expectations/
+dbt/retailco/target/
+dbt/retailco/logs/
+dbt/retailco/.user.yml
+data_quality/validate_pandas.py

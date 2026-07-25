@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: retailco 
+    database: najma-de-learning 
+    schema: retailco 
+    tables: 
+      - name: sales_clean
+        description: "Cleaned transaction-level sales data from Spark Silver layer."
